@@ -79,86 +79,27 @@ class _CartScreenState extends State<CartScreen> {
 
             // List of cart items
             Expanded(
-              child: ListView.builder(
-                itemCount: _cartItems.length,
-                itemBuilder: (context, index) {
-                  final item = _cartItems[index];
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          // Product Image
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.asset(
-                              item["image"],
-                              width: 70,
-                              height: 70,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-
-                          // Product Info
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  item["name"],
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Text(
-                                  item["color"],
-                                  style: const TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  "\$${item["price"].toStringAsFixed(2)}",
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          // Quantity Controls
-                          Row(
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.remove_circle_outline),
-                                onPressed: () => _decreaseQty(index),
-                              ),
-                              Text(
-                                "${item["qty"]}",
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.add_circle_outline),
-                                onPressed: () => _increaseQty(index),
-                              ),
-                            ],
-                          ),
-
-                          // Remove Button
-                          IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.red),
-                            onPressed: () => _removeItem(index),
-                          ),
-                        ],
-                      ),
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: 300,
+                    child: ListView.builder(
+                      itemCount: _cartItems.length,
+                      itemBuilder: (context, index) {
+                        return _buildCartItem(
+                          title: _cartItems[index]["name"],
+                          color: _cartItems[index]["color"],
+                          image: _cartItems[index]["image"],
+                          price: _cartItems[index]["price"],
+                          qty: _cartItems[index]["qty"],
+                          onRemove: () => _removeItem(index),
+                          onIncrease: () => _increaseQty(index),
+                          onDecrease: () => _decreaseQty(index),
+                        );
+                      },
                     ),
-                  );
-                },
+                  ),
+                ],
               ),
             ),
 
@@ -168,47 +109,57 @@ class _CartScreenState extends State<CartScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      "Total",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Total",
+                          style: TextStyle(
+                            color: Colors.black54,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        Text(
+                          "\$${totalPrice.toStringAsFixed(2)}",
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ],
                     ),
-                    Text(
-                      "\$${totalPrice.toStringAsFixed(2)}",
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
+                    SizedBox(
+                      width: 250,
+                      child: FilledButton(
+                        style: FilledButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          backgroundColor: Colors.black,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              10,
+                            ), // 👈 just a little rounded
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return CheckoutScreen();
+                              },
+                            ),
+                          );
+                        },
+                        child: const Text(
+                          "Checkout",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
                   ],
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                    style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: Colors.black,
-                    ),
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) {
-                            return CheckoutScreen();
-                          },
-                        ),
-                      );
-                    },
-                    child: const Text(
-                      "Checkout",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
                 ),
               ],
             ),
@@ -217,4 +168,76 @@ class _CartScreenState extends State<CartScreen> {
       ),
     );
   }
+}
+
+Widget _buildCartItem({
+  required String title,
+  required String color,
+  required String image,
+  required double price,
+  required int qty,
+  required VoidCallback onRemove,
+  required VoidCallback onIncrease,
+  required VoidCallback onDecrease,
+}) {
+  return Container(
+    margin: const EdgeInsets.only(bottom: 12),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      // mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.asset(image, width: 60, height: 60, fit: BoxFit.cover),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              Text(color, style: const TextStyle(color: Colors.grey)),
+              const SizedBox(height: 4),
+              Text(
+                "\$${price.toStringAsFixed(2)}",
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            IconButton(
+              icon: Image.asset('assets/images/deleteIcon.png', scale: 1.3),
+              onPressed: onRemove,
+            ),
+
+            Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.remove_circle_outline),
+                  onPressed: onIncrease,
+                ),
+                Text("$qty", style: TextStyle(fontSize: 16)),
+                IconButton(
+                  icon: const Icon(Icons.add_circle_outline),
+                  onPressed: onDecrease,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
 }

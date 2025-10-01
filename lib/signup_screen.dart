@@ -230,7 +230,15 @@ class SignupScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return LoginScreen();
+                        },
+                      ),
+                    );
+                  },
                   child: const Text(
                     "Sign up",
                     style: TextStyle(fontSize: 16, color: Colors.white),

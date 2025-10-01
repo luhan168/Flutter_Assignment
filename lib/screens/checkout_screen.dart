@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 
-class CheckoutScreen extends StatelessWidget {
+class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
 
+  @override
+  State<CheckoutScreen> createState() => _CheckoutScreenState();
+}
+
+class _CheckoutScreenState extends State<CheckoutScreen> {
+  String _selectedPayment = "aba";
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -112,7 +118,17 @@ class CheckoutScreen extends StatelessWidget {
                 onChanged: (value) {},
                 title: Row(
                   children: [
-                    Image.asset("assets/images/aba.png", width: 32, height: 32),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(
+                        6.8,
+                      ), // <-- set the roundness
+                      child: Image.asset(
+                        "assets/images/aba.png",
+                        width: 32,
+                        height: 32,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
                     const SizedBox(width: 12),
                     const Expanded(
                       child: Text(
@@ -133,15 +149,23 @@ class CheckoutScreen extends StatelessWidget {
                 children: [
                   RadioListTile(
                     value: "visa",
-                    groupValue: "aba",
-                    onChanged: (value) {},
+                    groupValue: _selectedPayment,
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedPayment = value.toString();
+                      });
+                    },
                     title: const Text("Visa Card"),
                     controlAffinity: ListTileControlAffinity.trailing,
                   ),
                   RadioListTile(
                     value: "paypal",
-                    groupValue: "aba",
-                    onChanged: (value) {},
+                    groupValue: _selectedPayment,
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedPayment = value.toString();
+                      });
+                    },
                     title: const Text("Paypal"),
                     controlAffinity: ListTileControlAffinity.trailing,
                   ),
@@ -161,7 +185,14 @@ class CheckoutScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Your order has been placed!"),
+                        duration: Duration(seconds: 2), // how long it shows
+                      ),
+                    );
+                  },
                   child: const Text(
                     "Order Now",
                     style: TextStyle(color: Colors.white, fontSize: 16),
